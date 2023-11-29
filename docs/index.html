@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Optical Properties of Tissue and related materials</title>
-    <link rel="stylesheet" href="http://127.0.0.1:5500/src/style.css" />
+    <link rel="stylesheet" href="https://lewismcmillan.com/Optical-properties/src/style.css" />
   </head>
   <body style="background-color: rgb(250, 246, 246)">
     <div class="container" id="chart_container">
@@ -89,7 +89,7 @@
       var select = document.getElementById("datachoose");
 
       for (let i = 0; i < urls.length; i++) {
-        requestJSONResult("http://127.0.0.1:5500/res/water/" + urls[i])
+        requestJSONResult("https://lewismcmillan.com/Optical-properties/res/water/" + urls[i])
           .then(function (result) {
             plot(result);
             // waterdata.push(result);
@@ -99,7 +99,7 @@
 
             var option = document.createElement("option");
             option.text = result["name"];
-            option.value = "http://127.0.0.1:5500/res/water/" + urls[i];
+            option.value = "https://lewismcmillan.com/Optical-properties/res/water/" + urls[i];
             option.download = result["name"] + ".json";
             select.add(option);
           })
@@ -129,8 +129,8 @@
           getExtremesFromAll: true,
         },
         credits: {
-          href: "https://opticalproperties.com",
-          text: "opticalproperties.com",
+          href: "https://lewismcmillan.com/Optical-properties",
+          text: "lewismcmillan.com",
         },
         title: { text: "Water Absorption" },
         exporting: {
