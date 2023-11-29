@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Optical Properties of Tissue and related materials</title>
+    <link rel="stylesheet" href="http://127.0.0.1:5500/src/style.css" />
+  </head>
+  <body style="background-color: rgb(250, 246, 246)">
+    <div class="container" id="chart_container">
+      <h1>Optical Properties</h1>
+      <div id="chart"></div>
+      <div class="centre">
+        <input id="plot_logx" type="checkbox" onclick="update()" /> LogX &nbsp;
+        <input id="plot_logy" type="checkbox" onclick="update()" /> LogY &nbsp;
+      </div>
+    </div>
+
+    <div class="container" style="margin-top: 20px; margin-bottom: 20px">
+      <form id="form1">
+        <p id="datatype-prompt">Select data type for download:</p>
+        <input type="radio" id="csv" name="type" value="csv"  /> CSV
+        &nbsp;<br />
+        <input type="radio" id="json" name="type" value="json" checked /> JSON &nbsp;<br />
+        <input type="radio" id="yaml" name="type" value="yaml" /> YAML &nbsp;<br />
+      </form>
+      <form id="form2">
+        <select name="dataChoose" id="datachoose">
+          <option disabled selected hidden>Download Data</option>
+        </select>
+        <input type="submit" value="Download" class="grey-btn" />
+      </form>
+    </div>
+
+    <div id="refs" style="margin-top: 20px; margin-bottom: 20px">
+      <h1>Sources</h1>
+      <div id="sources"></div>
+    </div>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script type="text/javascript">
+        form2.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedValue = document.getElementById('datachoose').value;
+            console.log(selectedValue)  
+            const link = document.createElement('a');
+            var filename = selectedValue.substring(selectedValue.lastIndexOf('/')+1);
+            link.setAttribute('download', filename);
+            link.target = "test.json";
+            link.href = selectedValue;
+            document.body.appendChild(link);
+            link.click();
+        });
+
+      //   var waterdata = [];
+      var urls = [
+        "A. Bricaud et al. (1995).json",
+        "L. Kou et al. (1993).json",
+        "D.M. Wieliczka et al. (1989).json",
+        "R.M. Pope (1993).json",
+        "F.M. Sogandares et al. (1997).json",
+        "R.M. Pope et al. (1997).json",
+        "H. Buiteveld et al. (1994).json",
+      ];
+
+      function requestJSONResult(url) {
+        return fetch(url).then(status).then(json);
+      }
+
+      function status(response) {
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+        } else {
+          return Promise.reject(new Error(reponse.statusText));
+        }
+      }
+
+      function json(response) {
+        return response.json();
+      }
+    </script>
+
+    <script>
+      var ul = document.createElement("ul");
+      document.getElementById("sources").appendChild(ul);
+
+      var select = document.getElementById("datachoose");
+
+      for (let i = 0; i < urls.length; i++) {
+        requestJSONResult("http://127.0.0.1:5500/res/water/" + urls[i])
+          .then(function (result) {
+            plot(result);
+            // waterdata.push(result);
+            var li = document.createElement("li");
+            ul.appendChild(li);
+            li.innerHTML = li.innerHTML + result["source"];
+
+            var option = document.createElement("option");
+            option.text = result["name"];
+            option.value = "http://127.0.0.1:5500/res/water/" + urls[i];
+            option.download = result["name"] + ".json";
+            select.add(option);
+          })
+          .catch(function (error) {
+            console.log("Request failed", error);
+          });
+      }
+
+      let x_axis_type = "linear";
+      let y_axis_type = "linear";
+
+      const chart = Highcharts.chart("chart", {
+        chart: {
+          zoomType: "xy",
+          panning: true,
+          panKey: "shift",
+        },
+        yAxis: {
+          type: x_axis_type,
+          title: { text: "Absorption/cm\u207B\u00B9" },
+        },
+        xAxis: {
+          title: { text: "Wavelength/nm" },
+          type: y_axis_type,
+        },
+        plotOptions: {
+          getExtremesFromAll: true,
+        },
+        credits: {
+          href: "https://opticalproperties.com",
+          text: "opticalproperties.com",
+        },
+        title: { text: "Water Absorption" },
+        exporting: {
+          filename: "opticalproperties",
+          buttons: {
+            contextButton: {
+              menuItems: [
+                "printChart",
+                "separator",
+                "downloadPNG",
+                "downloadJPEG",
+                "downloadPDF",
+                "downloadSVG",
+              ],
+            },
+          },
+        },
+        navigation: { buttonOptions: { verticalAlign: "bottom", y: 0 } },
+        tooltip: {
+          shared: true,
+          formatter: function () {
+            var s =
+              "<b>" + this.x + " nm" + "</b><br>" + this.y + " cm\u207B\u00B9";
+            return s;
+          },
+        },
+        series: [],
+      });
+
+      function plot(data) {
+        let water1 = {
+          name: data["name"],
+          data: data["wavelengths"].map((k, j) => [k, data["absoprtion"][j]]),
+        };
+        chart.addSeries(water1);
+      }
+    </script>
+
+    <script>
+      function update() {
+        plot_logx = document.getElementById("plot_logx").checked;
+        plot_logy = document.getElementById("plot_logy").checked;
+
+        plot_logx ? (x_axis_type = "logarithmic") : (x_axis_type = "linear");
+        plot_logy ? (y_axis_type = "logarithmic") : (y_axis_type = "linear");
+        chart.xAxis[0].update({ type: x_axis_type });
+        chart.yAxis[0].update({ type: y_axis_type });
+      }
+    </script>
+  </body>
+</html>

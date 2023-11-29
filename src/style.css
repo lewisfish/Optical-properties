@@ -1,0 +1,41 @@
+#sources {
+  display: block;
+  font-size: 0.75em;
+}
+
+#form1 {
+  padding: 5px;
+  float: left;
+}
+
+#form2 {
+  padding: 10px;
+}
+
+form {
+  background-color: #e5f5f8;
+  border-radius: 10px;
+  font-family: Arial;
+  padding: 20px;
+  width: 200px;
+}
+
+#form-prompt {
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+#refs {
+  background-color: #e5f5f8;
+  border-radius: 10px;
+  font-family: Arial;
+  padding: 10px;
+}
+
+#chart_container {
+  background-color: #e5f5f8;
+  border-radius: 10px;
+  font-family: Arial;
+  padding: 20px;
+}
